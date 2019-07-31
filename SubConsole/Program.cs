@@ -7,31 +7,28 @@ using System.Threading;
 using NetMQ;
 using NetMQ.Sockets;
 
-namespace Examples
+namespace Examples.Server
 {
     static partial class Program
     {
         public static void Main(string[] args)
         {
-            List<string> poruke = new List<string>();
-            using (var server = new ResponseSocket())
+            Console.WriteLine("Server");
+            using (var router = new RouterSocket())
             {
-                server.Bind("tcp://*:5555");
+                router.Options.RouterMandatory = true;
+                router.Bind("tcp://127.0.0.1:5555");
+
+                bool more = false;
                 while (true)
                 {
-                    var message = server.ReceiveFrameString();
-                    poruke.Add(message);
-                    //Console.WriteLine("Received {0}", message);
-                    Thread.Sleep(100);
+                    string a = router.ReceiveFrameString(Encoding.ASCII,out more);
 
-                    foreach (var item in poruke)
-                    {
-                        Console.WriteLine(item);
-                    }
-                    server.SendFrame(message);
+                    Console.WriteLine(a);
                 }
-            }
+                
 
+            }
         }
     }
 }

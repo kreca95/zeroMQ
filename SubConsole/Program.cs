@@ -22,12 +22,34 @@ namespace Examples.Server
                 bool more = false;
                 while (true)
                 {
-                    string a = router.ReceiveFrameString(Encoding.ASCII,out more);
+                    //string a = router.ReceiveFrameString(Encoding.ASCII,out more);
+                    //var nick = router.Options.Identity;
 
-                    Console.WriteLine(a);
+                    //Console.WriteLine(nick);
+                    //Console.WriteLine(a);
+
+                    var clientMessage = router.ReceiveMultipartMessage();
+                    PrintFrames("Server receiving", clientMessage);
+
+
+                    var msgToClient = new NetMQMessage();
+                    msgToClient.Append(clientMessage[0]);
+                    msgToClient.Append(clientMessage[1]);
+                    msgToClient.Append(clientMessage[2]);
+
+                    router.SendMultipartMessage(msgToClient);
                 }
-                
 
+
+            }
+        }
+
+        static void PrintFrames(string operationType, NetMQMessage message)
+        {
+            for (int i = 0; i < message.FrameCount; i++)
+            {
+                Console.WriteLine("{0} Socket : Frame[{1}] = {2}", operationType, i,
+                    message[i].ConvertToString());
             }
         }
     }
